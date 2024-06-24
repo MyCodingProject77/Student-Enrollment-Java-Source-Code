@@ -1,0 +1,150 @@
+
+
+
+     import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
+
+
+
+
+    public NewJFrame() {
+        initComponents();
+        Connect();
+        StudentData();
+    }
+
+
+
+  Connection con;
+    PreparedStatement pst; 
+
+
+
+
+
+   public void Connect(){
+    
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            con = DriverManager.getConnection("jdbc:mysql://localhost/studentdb","root","");
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    
+    
+    
+    }
+
+
+
+
+  private void StudentData(){
+    
+        try {
+            int QQ;
+            pst = con.prepareStatement("SELECT * FROM student");
+            ResultSet Rs = pst.executeQuery();
+            
+            ResultSetMetaData RSMD = Rs.getMetaData();
+
+            QQ = RSMD.getColumnCount();
+            
+            DefaultTableModel DFG =(DefaultTableModel)table1.getModel(); 
+            
+            DFG.setRowCount(0);
+             
+            while(Rs.next()){
+        
+            Vector v2 = new Vector();
+             
+            for(int aa=1; aa<=QQ; aa++){
+                 
+                v2.add(Rs.getString("studentid"));
+                v2.add(Rs.getString("studentname"));
+                v2.add(Rs.getString("email"));
+                v2.add(Rs.getString("course"));
+                v2.add(Rs.getString("enrolldate"));
+             }
+             
+             DFG.addRow(v2);
+        
+        }
+          
+        } catch (SQLException ex) {
+            Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    
+    
+    
+    }
+
+
+
+
+
+
+    Insert Code
+
+    try {
+            String studentid = txtId.getText();
+            String studentname = txtName.getText();
+            String email = txtEmail.getText();
+            String course = txtCourse.getText();
+            
+            pst = con.prepareStatement("INSERT INTO student (studentid,studentname,email,course,enrolldate)VALUES(?,?,?,?,?)");
+            pst.setString(1,studentid);
+            pst.setString(2,studentname);
+            pst.setString(3,email);
+            pst.setString(4,course);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String enrolldate = sdf.format(Date_Chooser.getDate());
+            pst.setString(5,enrolldate);
+            pst.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Record Inserted Successfully");
+            StudentData();
+        } catch (SQLException ex) {
+            Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+         
+        
+        
+    }                                    
+
+
+
+
+    Delete Code
+
+
+   try {
+            String studentid = txtId.getText();
+            
+            pst=con.prepareStatement("DELETE FROM student WHERE studentid=?");
+            pst.setString(1,studentid);
+            
+            pst.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Record Deleted Successfully");
+            StudentData();
+        } catch (SQLException ex) {
+            Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }                      
+
+
+
+
+
+    Clear Code
+
+    txtId.setText("");
+        txtName.setText("");
+        txtEmail.setText("");
+        txtCourse.setText("");
